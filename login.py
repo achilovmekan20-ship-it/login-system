@@ -1,6 +1,8 @@
 #load libraries
+import sqlite3
 import sys
 from PyQt5.QtWidgets import  *
+
 
 
 #first page / main window
@@ -9,27 +11,28 @@ class LoginWindow(QWidget):
         super().__init__()
 
 
+
                                    # Uİ PART( DESİGN / FRONTEND )
 
         #create our widgets
-        username       =   QLineEdit(self)                  #username input area
-        username.setPlaceholderText(" NAME ")
-        password       =   QLineEdit(self)                  #password input area
-        password.setPlaceholderText(" PASSWORD ")
+        self.username       =   QLineEdit(self)                  #username input area
+        self.username.setPlaceholderText(" NAME ")
+        self.password       =   QLineEdit(self)                  #password input area
+        self.password.setPlaceholderText(" PASSWORD ")
         login          =   QPushButton("LOGİN",self)        #login button
         create_account =   QLabel("Create Account",self)    #clickable text create account
         exit_button    =   QPushButton(" EXİT ",self)       #exit from program
 
         #set position and size of interface widgets
-        username.setGeometry       (300, 136, 200, 30)
-        password.setGeometry       (300, 168, 200, 30)
+        self.username.setGeometry       (300, 136, 200, 30)
+        self.password.setGeometry       (300, 168, 200, 30)
         login.setGeometry          (300, 200, 200, 30)
         create_account.setGeometry (355, 230,  90, 10)
         exit_button.setGeometry    (720, 568,  80, 30)
 
-        #set color to our interface widgets(buttons anda labels),I cant able to set color only background of window
-        username.setStyleSheet       ("background-color:none;")
-        password.setStyleSheet       ("background-color:none;")
+        #set color to our interface widgets(buttons anda labels)
+        self.username.setStyleSheet       ("background-color:none;")
+        self.password.setStyleSheet       ("background-color:none;")
         login.setStyleSheet          ("background-color:none;")
         create_account.setStyleSheet ("color:black;")
         exit_button.setStyleSheet    ("background-color:#ad4040;")
@@ -42,18 +45,49 @@ class LoginWindow(QWidget):
         #exit_button event
         exit_button.clicked.connect(self.exit)
 
+        # if log in successful goto main window
+        login.clicked.connect(self.log_success)
+
 
                                        #FUNCTİONS
     def new_account(self,event):
-        stack.setCurrentWidget(create_w)
-        stack.setWindowTitle(" CREATE ACCOUNT ")
+        Stack.setCurrentWidget(create_w)
+        Stack.setWindowTitle(" CREATE ACCOUNT ")
+
+    def log_success(self):
+
+        name = self.username.text()
+        password = self.password.text()
+
+        db = sqlite3.connect("users.db")
+        cursor = db.cursor()
+
+        cursor.execute(
+            "SELECT * FROM users WHERE name = ? AND password = ?",
+            (name, password)
+        )
+
+        user = cursor.fetchone()
+
+        db.close()
+
+        if user:
+            from main import stack as main_stack
+            main_stack.show()
+            Stack.close()
+
+        else:
+            print("login failed")
 
     def exit(self):
-        stack.close()
+        Stack.close()
+        QApplication.quit()
 
 
 
-                                          # SETTİNG WİNDOW
+
+
+                                          # CREATE ACCOUNT WİNDOW
 
 #second page / second(sett)
 class CreateWindow(QWidget):
@@ -63,28 +97,71 @@ class CreateWindow(QWidget):
                                  # Uİ PART( DESİGN / FRONTEND )
 
         #create ui widgets
-        name           =   QLineEdit(self)
-        name.setPlaceholderText(" NAME ")
-        password       =   QLineEdit(self)
-        password.setPlaceholderText(" PASSWORD ")
+        self.name           =   QLineEdit(self)
+        self.name.setPlaceholderText(" NAME ")
+        self.password       =   QLineEdit(self)
+        self.password.setPlaceholderText(" PASSWORD ")
         create_button  =   QPushButton("CREATE",self)
 
         back           =   QPushButton(" BACK ",self) #back to log in window
 
         #set color and size for widgets
-        name.setStyleSheet          ("background-color:none;")
-        password.setStyleSheet      ("background-color:none;")
+        self.name.setStyleSheet          ("background-color:none;")
+        self.password.setStyleSheet      ("background-color:none;")
         create_button.setStyleSheet ("background-color:none;")
         back.setStyleSheet          ("background-color:none;")
 
-        name.setGeometry            (1, 1,  200, 30)
-        password.setGeometry        (1, 32, 200, 30)
+        self.name.setGeometry            (1, 1,  200, 30)
+        self.password.setGeometry        (1, 32, 200, 30)
         create_button.setGeometry   (1, 62, 200, 30)
         back.setGeometry            (720, 1, 80, 30)
 
 
-                                        #BACKGROUND PART( BACKEND )
+                                        #PRESS EVENTS / BACKGROUND PART( BACKEND )
+        create_button.clicked.connect(self.create_account)
+
         back.clicked.connect(self.back_window)
+
+
+                                         # DATABASE
+
+    def create_account(self):
+
+        name = self.name.text()
+        password = self.password.text()
+
+        if len(name) == 0 and len(password) == 0:
+            print("fill the empty places")
+            self.name.setStyleSheet("background-color:red;")
+            self.password.setStyleSheet("background-color:red;")
+
+        elif len(name)==0:
+                self.name.setStyleSheet("background-color:red;")
+
+        elif len(password)==0:
+                self.password.setStyleSheet("background-color:red;")
+
+        else:
+            import sqlite3
+
+            db = sqlite3.connect("users.db")
+            cursor = db.cursor()
+
+            try:
+                cursor.execute(
+                    "INSERT INTO users (name, password) VALUES (?, ?)",
+                    (name, password)
+                )
+
+                db.commit()
+
+                self.name.setStyleSheet("background-color:green;")
+                self.password.setStyleSheet("background-color:green;")
+
+
+            except sqlite3.IntegrityError:
+                print("this account is exists")
+
 
 
 
@@ -93,30 +170,31 @@ class CreateWindow(QWidget):
                                          #FUNCTİONS
 
     def back_window(self):
-        stack.setCurrentWidget(login_w)
-        stack.setWindowTitle("MAİN WİNDOW")
+        Stack.setCurrentWidget(login_w)
+        Stack.setWindowTitle("MAİN WİNDOW")
 
 
 app=QApplication(sys.argv)
+
 
 # create instance of Main and Settings window for using it in stack
 login_w=LoginWindow()
 create_w=CreateWindow()
 
 # add windows to stack
-stack=QStackedWidget()
-stack.addWidget(login_w)
-stack.addWidget(create_w)
+Stack=QStackedWidget()
+Stack.addWidget(login_w)
+Stack.addWidget(create_w)
 
 # set main window to the first page / set window title(name) to current page
-stack.setCurrentWidget(login_w)
-stack.setWindowTitle("MAİN WİNDOW")
+Stack.setCurrentWidget(login_w)
+Stack.setWindowTitle("MAİN WİNDOW")
 
 # set background color for main window
-stack.setStyleSheet("background-color:#829982;")
-stack.setFixedSize(800,600)
+Stack.setStyleSheet("background-color:#829982;")
+Stack.setFixedSize(800,600)
+Stack.show()
 
-stack.show()
-
-#dont close while program run
-sys.exit(app.exec_())
+if __name__ == "__main__":
+ #dont close while program run
+ sys.exit(app.exec_())
