@@ -1,0 +1,8 @@
+# Login & Authorization System
+
+This project works as a login and authorization system.
+
+1. The program opens the **Login** window. If the user does not have an account, they can go to the **Create Account** window and create one.
+2. After a successful login, the **Main Window** opens. Users can access various settings from there.
+3. The user can **log out** when finished and return to the Login window.
+

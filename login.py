@@ -2,6 +2,8 @@
 import sqlite3
 import sys
 from PyQt5.QtWidgets import  *
+from PyQt5.QtCore import QTimer
+
 
 
 
@@ -19,23 +21,23 @@ class LoginWindow(QWidget):
         self.username.setPlaceholderText(" NAME ")
         self.password       =   QLineEdit(self)                  #password input area
         self.password.setPlaceholderText(" PASSWORD ")
-        login          =   QPushButton("LOGİN",self)        #login button
-        create_account =   QLabel("Create Account",self)    #clickable text create account
-        exit_button    =   QPushButton(" EXİT ",self)       #exit from program
+        login          =   QPushButton("LOGİN",self)             #login button
+        create_account =   QLabel("Create Account",self)         #clickable text create account
+        exit_button    =   QPushButton(" EXİT ",self)            #exit from program
 
         #set position and size of interface widgets
         self.username.setGeometry       (300, 136, 200, 30)
         self.password.setGeometry       (300, 168, 200, 30)
-        login.setGeometry          (300, 200, 200, 30)
-        create_account.setGeometry (355, 230,  90, 10)
-        exit_button.setGeometry    (720, 568,  80, 30)
+        login.setGeometry               (300, 200, 200, 30)
+        create_account.setGeometry      (355, 230,  90, 10)
+        exit_button.setGeometry         (720, 568,  80, 30)
 
         #set color to our interface widgets(buttons anda labels)
         self.username.setStyleSheet       ("background-color:none;")
         self.password.setStyleSheet       ("background-color:none;")
-        login.setStyleSheet          ("background-color:none;")
-        create_account.setStyleSheet ("color:black;")
-        exit_button.setStyleSheet    ("background-color:#ad4040;")
+        login.setStyleSheet               ("background-color:none;")
+        create_account.setStyleSheet      ("color:black;")
+        exit_button.setStyleSheet         ("background-color:#ad4040;")
 
                                     #BACKGROUND PART ( BACKEND )
 
@@ -77,7 +79,29 @@ class LoginWindow(QWidget):
             Stack.close()
 
         else:
-            print("login failed")
+
+            if len(name)==0 and len(password)==0:
+                self.username.setStyleSheet("background-color:red;")
+                self.username.setPlaceholderText("PLEASE FİLL EMPTY ZONES! ")
+                QTimer.singleShot(5000, lambda: self.username.setStyleSheet("background-color:none;"))
+                QTimer.singleShot(5000, lambda: self.username.setPlaceholderText(" NAME "))
+                self.password.setStyleSheet("background-color:red;")
+                self.password.setPlaceholderText("PLEASE FİLL EMPTY ZONES! ")
+                QTimer.singleShot(5000, lambda: self.password.setStyleSheet("background-color:none;"))
+                QTimer.singleShot(5000, lambda: self.password.setPlaceholderText(" PASSWORD "))
+
+            elif len(name)==0:
+                self.username.setStyleSheet("background-color:red;")
+                self.username.setPlaceholderText("PLEASE FİLL EMPTY ZONES! ")
+                QTimer.singleShot(5000,lambda :self.username.setStyleSheet("background-color:none;"))
+                QTimer.singleShot(5000, lambda: self.username.setPlaceholderText(" NAME "))
+
+            elif len(password)==0:
+                self.password.setStyleSheet("background-color:red;")
+                self.password.setPlaceholderText("PLEASE FİLL EMPTY ZONES! ")
+                QTimer.singleShot(5000, lambda: self.password.setStyleSheet("background-color:none;"))
+                QTimer.singleShot(5000, lambda: self.password.setPlaceholderText(" PASSWORD "))
+
 
     def exit(self):
         Stack.close()
@@ -97,24 +121,24 @@ class CreateWindow(QWidget):
                                  # Uİ PART( DESİGN / FRONTEND )
 
         #create ui widgets
-        self.name           =   QLineEdit(self)
-        self.name.setPlaceholderText(" NAME ")
-        self.password       =   QLineEdit(self)
-        self.password.setPlaceholderText(" PASSWORD ")
-        create_button  =   QPushButton("CREATE",self)
+        self.name           =  QLineEdit  (self)
+        self.name.setPlaceholderText      (" NAME ")
+        self.password       =  QLineEdit  (self)
+        self.password.setPlaceholderText  (" PASSWORD ")
+        create_button  =   QPushButton    ("CREATE",self)
 
-        back           =   QPushButton(" BACK ",self) #back to log in window
+        back           =   QPushButton    (" BACK ",self) #back to log in window
 
         #set color and size for widgets
-        self.name.setStyleSheet          ("background-color:none;")
-        self.password.setStyleSheet      ("background-color:none;")
-        create_button.setStyleSheet ("background-color:none;")
-        back.setStyleSheet          ("background-color:none;")
+        self.name.setStyleSheet           ("background-color:none;")
+        self.password.setStyleSheet       ("background-color:none;")
+        create_button.setStyleSheet       ("background-color:none;")
+        back.setStyleSheet                ("background-color:none;")
 
-        self.name.setGeometry            (1, 1,  200, 30)
-        self.password.setGeometry        (1, 32, 200, 30)
-        create_button.setGeometry   (1, 62, 200, 30)
-        back.setGeometry            (720, 1, 80, 30)
+        self.name.setGeometry             (1, 1,  200, 30)
+        self.password.setGeometry         (1, 32, 200, 30)
+        create_button.setGeometry         (1, 62, 200, 30)
+        back.setGeometry                  (720, 1, 80, 30)
 
 
                                         #PRESS EVENTS / BACKGROUND PART( BACKEND )
@@ -130,16 +154,27 @@ class CreateWindow(QWidget):
         name = self.name.text()
         password = self.password.text()
 
-        if len(name) == 0 and len(password) == 0:
-            print("fill the empty places")
+        if len(name) == 0 and len(password) == 0:                                            #İF BOTH OF BOXES EMPTY REMİND İT TO USER(for 5s turns in to red)
             self.name.setStyleSheet("background-color:red;")
+            self.name.setPlaceholderText("PLEASE ENTER NAME! ")
+            QTimer.singleShot(5000, lambda: self.name.setStyleSheet("background-color:none;"))
+            QTimer.singleShot(5000, lambda: self.name.setPlaceholderText(" NAME "))
             self.password.setStyleSheet("background-color:red;")
-
-        elif len(name)==0:
-                self.name.setStyleSheet("background-color:red;")
-
-        elif len(password)==0:
-                self.password.setStyleSheet("background-color:red;")
+            self.password.setPlaceholderText("PLEASE ENTER PASSWORD! ")
+            QTimer.singleShot(5000, lambda: self.password.setStyleSheet("background-color:none;"))
+            QTimer.singleShot(5000, lambda: self.password.setPlaceholderText(" PASSWORD "))
+                                                                                            #İF ONLY NAME EMPTY REMİND TO USER (for 5s turns in to red)
+        elif len(name) == 0:
+            self.name.setStyleSheet("background-color:red;")
+            self.name.setPlaceholderText("PLEASE ENTER NAME! ")
+            QTimer.singleShot(5000, lambda: self.name.setStyleSheet("background-color:none;"))
+            QTimer.singleShot(5000, lambda: self.name.setPlaceholderText(" NAME "))
+                                                                                             # İF ONLY PASSWORD EMPTY REMİND TO USER (for 5s turns in to red)
+        elif len(password) == 0:
+            self.password.setStyleSheet("background-color:red;")
+            self.password.setPlaceholderText("PLEASE ENTER PASSWORD! ")
+            QTimer.singleShot(5000, lambda: self.password.setStyleSheet("background-color:none;"))
+            QTimer.singleShot(5000, lambda: self.password.setPlaceholderText(" PASSWORD "))
 
         else:
             import sqlite3
@@ -157,6 +192,8 @@ class CreateWindow(QWidget):
 
                 self.name.setStyleSheet("background-color:green;")
                 self.password.setStyleSheet("background-color:green;")
+                QTimer.singleShot(10000, lambda: self.name.setStyleSheet("background-color:none;"))
+                QTimer.singleShot(10000, lambda: self.password.setStyleSheet("background-color:none;"))
 
 
             except sqlite3.IntegrityError:
